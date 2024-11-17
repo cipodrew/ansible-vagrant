@@ -1,0 +1,83 @@
+---
+- name: Install slapd
+  ansible.builtin.apt:
+    update_cache: true
+    pkg:
+      - slapd
+
+- name: Set slapd password1
+  ansible.builtin.debconf:
+    name: slapd
+    question: slapd/password1
+    value: gennaio.marzo
+    vtype: password
+
+- name: Set slapd password2
+  ansible.builtin.debconf:
+    name: slapd
+    question: slapd/password2
+    value: gennaio.marzo
+    vtype: password
+
+- name: Set slapd root_password
+  ansible.builtin.debconf:
+    name: slapd
+    question: slapd/root_password
+    value: gennaio.marzo
+    vtype: password
+
+- name: Set slapd debconf answers
+  debconf:
+    name: slapd
+    question: "{{ item.question }}"
+    vtype: "{{ item.vtype }}"
+    value: "{{ item.value }}"
+  with_items:
+    - { question: "slapd/no_configuration", vtype: "boolean", value: "false" }
+    - { question: "slapd/move_old_database", vtype: "boolean", value: "true" }
+    - { question: "slapd/domain", vtype: "string", value: "labammsis" }
+    - { question: "shared/organization", vtype: "string", value: "unibo" }
+    - { question: "slapd/purge_database", vtype: "boolean", value: "true" }
+    - { question: "slapd/move_old_database", vtype: "boolean", value: "true" }
+  notify:
+    - Restart SLAPD
+    - reconfigure slapd
+
+# - name: Set slapd admin password
+#   debconf:
+#     name: slapd
+#     question: shared/ldapns/ldap-admin-password
+#     value: gennaio.marzo
+#     vtype: password
+#   notify:
+#     - reconfigure slapd
+
+######### SUDO LDAP #########
+# - name: Install sudo-ldap
+#   ansible.builtin.apt:
+#     update_cache: true
+#     pkg:
+#       - sudo-ldap
+
+# - name: Add sudo ldap schema
+#   command: ldapadd -Y EXTERNAL -H ldapi:/// -f /usr/share/doc/sudo-ldap/schema.olcSudo
+#   register: output
+#   changed_when: output.rc == 0
+
+# - name: Install slapd debconf
+#   apt:
+#     update_cache: yes
+#     name: [ 'debconf', 'debconf-utils']
+#     state: latest
+
+# - name: Configura slapd
+#   copy:
+#     src: debconf-slapd.conf
+#     dest: /root/debconf-slapd.conf
+#     owner: root
+#     group: root
+#     mode: 0644
+
+# - name: Run debconf
+#   ansible.builtin.shell:
+#     cmd: cat /root/debconf-slapd.conf | debconf-set-selections

@@ -1,0 +1,15 @@
+[Unit]
+Description=start and stop logging
+Requires= rsyslog.service
+DefaultDependencies=no
+
+[Service]
+PIDFile=/tmp/logunit.pid
+Type=oneshot
+ExecStart=/home/vagrant/logScript.sh start
+ExecStop=/home/vagrant/logScript.sh stop
+RemainAfterExit=true
+TimeoutStartSec=5min
+
+[Install]
+WantedBy=multi-user.target

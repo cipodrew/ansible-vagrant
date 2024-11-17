@@ -1,0 +1,34 @@
+- name: Load tcp remote logging in rsyslog configuration
+  lineinfile:
+    path: /etc/rsyslog.conf
+    line: 'module(load="imtcp")'
+    state: present
+
+- name: Enable tcp reception on port 514
+  lineinfile:
+    path: /etc/rsyslog.conf
+    line: 'input(type="imtcp" port="514")'
+    state: present
+
+- name: Load udp remote logging in rsyslog configuration
+  lineinfile:
+    path: /etc/rsyslog.conf
+    line: 'module(load="imudp")'
+    state: present
+
+- name: Enable udp reception on port 514
+  lineinfile:
+    path: /etc/rsyslog.conf
+    line: 'input(type="imudp" port="514")'
+    state: present
+
+- name: store logs of facility local4 and level exactly info into /var/log/myevents.log
+  lineinfile:
+    path: /etc/rsyslog.conf
+    line: 'local4.=info /var/log/myevents.log'
+    state: present
+
+- name: Restart rsyslog service
+  service:
+    name: rsyslog
+    state: restarted

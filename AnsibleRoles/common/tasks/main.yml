@@ -1,0 +1,19 @@
+---
+# - name: set up apt provaxy.conf file
+#   ansible.builtin.copy:
+#     dest: /etc/apt/apt.conf.d/proxy.conf
+#     mode: 0664
+#     content: |
+#       Acquire::http::Proxy "http://192.168.123.249:8080/";
+#       Acquire::https::Proxy "http://192.168.123.249:8080/";
+
+# - name: Update /home/vagrant/.bashrc file
+#   ansible.builtin.lineinfile:
+#     dest: /home/vagrant/.bashrc
+#     line: |
+#       export HTTP_PROXY="http://192.168.123.249:8080"
+#       export HTTPS_PROXY="http://192.168.123.249:8080"
+# - name: Update all packages
+#   ansible.builtin.apt:
+#     update_cache: yes
+

@@ -1,0 +1,180 @@
+---
+- name: Install nss-ldap and utils for search
+  ansible.builtin.apt:
+    update_cache: true
+    pkg:
+      - libnss-ldap
+      - libpam-ldap
+      - ldap-utils
+
+- name: Set libnss-ldap debconf answers
+  ansible.builtin.debconf:
+    name: libnss-ldap
+    question: "{{ item.question }}"
+    vtype: "{{ item.vtype }}"
+    value: "{{ item.value }}"
+  with_items:
+      - { question: "shared/ldapns/ldap-server", vtype: "string", value: "ldap://10.1.1.254" }
+      - { question: "shared/ldapns/base-dn", vtype: "string", value: "dc=labammsis" }
+      - { question: "shared/ldapns/ldap_version", vtype: "string", value: "3" }
+      - { question: "libnss-ldap/rootbinddn", vtype: "string", value: "cn=admin,dc=labammsis" }
+      - { question: "libnss-ldap/rootbindpw", vtype: "password", value: "gennaio.marzo" }
+      - { question: "libnss-ldap/binddn", vtype: "string", value: "cn=admin,dc=labammsis" }
+      - { question: "libnss-ldap/bindpw", vtype: "password", value: "gennaio.marzo" }
+      - { question: "libnss-ldap/dblogin", vtype: "boolean", value: "false" }
+
+- name: Set libpam debconf answer1
+  ansible.builtin.debconf:
+    name: libpam-ldap
+    question: libpam-ldap/rootbinddn
+    value: "cn=admin,dc=labammsis"
+    vtype: string
+
+- name: Set libpam debconf answer2
+  ansible.builtin.debconf:
+    name: libpam-ldap
+    question: libpam-ldap/rootbindpw
+    value: "gennaio.marzo"
+    vtype: password
+
+- name: Set libpam debconf answer3
+  ansible.builtin.debconf:
+    name: libpam-ldap
+    question: libpam-ldap/bindpw
+    value: "gennaio.marzo"
+    vtype: password
+
+# - name: Replace nsswitch.conf
+#   ansible.builtin.copy:
+#     src: nsswitch.conf
+#     dest: /etc/nsswitch.conf
+#     mode: 0664
+
+- name: Create /etc/ldap directory
+  file:
+    path: /etc/ldap
+    state: directory
+    mode: "0755"
+    owner: root
+    group: root
+
+- name: Copy people.ldif
+  ansible.builtin.copy:
+    src: people.ldif
+    dest: /home/vagrant/people.ldif
+    mode: 0664
+
+- name: Flush notified handlers
+  meta: flush_handlers
+
+#- name: Run handlers immediatly
+#  include_tasks: handlers/main.yml
+
+- name: Add entry for people.ldif
+  command: ldapadd -x -D "cn=admin,dc=labammsis" -H ldap://10.1.1.254   -w "gennaio.marzo" -f /home/vagrant/people.ldif
+  register: output
+  changed_when: output.rc == 0
+  ignore_errors: true
+
+- name: Copy groups.ldif
+  ansible.builtin.copy:
+    src: groups.ldif
+    dest: /home/vagrant/groups.ldif
+    mode: 0664
+
+- name: Add entry for groups.ldif
+  command: ldapadd -x -D "cn=admin,dc=labammsis" -H ldap://10.1.1.254   -w "gennaio.marzo" -f /home/vagrant/groups.ldif
+  register: output
+  changed_when: output.rc == 0
+  ignore_errors: true
+
+- name: Copy utente.ldif
+  ansible.builtin.copy:
+    src: utente.ldif
+    dest: /home/vagrant/utente.ldif
+    mode: 0664
+
+- name: Add entry for utente.ldif
+  command: ldapadd -x -D "cn=admin,dc=labammsis" -H ldap://10.1.1.254   -w "gennaio.marzo" -f /home/vagrant/utente.ldif
+  register: output
+  changed_when: output.rc == 0
+  ignore_errors: true
+
+- name: Copy gruppo.ldif
+  ansible.builtin.copy:
+    src: gruppo.ldif
+    dest: /home/vagrant/gruppo.ldif
+    mode: 0664
+
+- name: Add entry for gruppo.ldif
+  command: ldapadd -x -D "cn=admin,dc=labammsis" -H ldap://10.1.1.254   -w "gennaio.marzo" -f /home/vagrant/gruppo.ldif
+  register: output
+  changed_when: output.rc == 0
+  ignore_errors: true
+
+- name: Change password for user dave
+  command: ldappasswd -x -D "cn=admin,dc=labammsis" -H ldap://10.1.1.254 -w "gennaio.marzo" "uid=dave,ou=People,dc=labammsis" -s 'ciao'
+  register: output
+  changed_when: output.rc == 0
+  ignore_errors: true
+
+- name: Replace nsswitch.conf
+  ansible.builtin.copy:
+    src: nsswitch.conf
+    dest: /etc/nsswitch.conf
+    mode: 0664
+  notify:
+    - Move libnss-ldap:amd64.config file aside to prevent overwrite from dpkg-reconfigure
+    - Move libpam-ldap:amd64.config file aside to prevent overwrite from dpkg-reconfigure
+    - Reconfigure libnss-ldap
+    - Reconfigure libpam-ldap
+    - Restore libnss-ldap:amd64.config file to original location
+    - Restore libpam-ldap:amd64.config file to original location
+
+- name: Copy ldap.conf
+  ansible.builtin.copy:
+    src: ldap.conf
+    dest: /etc/ldap/ldap.conf
+    mode: 0664
+  notify: Restart NSCD
+
+######### SUDO LDAP #########
+# - name: Install sudo-ldap
+#   ansible.builtin.apt:
+#     update_cache: true
+#     pkg:
+#       - sudo-ldap
+
+# - name: Add sudo ldap schema
+#   command: ldapadd -Y EXTERNAL -H ldapi:/// -f /usr/share/doc/sudo-ldap/schema.olcSudo
+#   register: output
+#   changed_when: output.rc == 0
+
+# - name: Copy sudo.ldif
+#   ansible.builtin.copy:
+#     src: sudo.ldif
+#     dest: /home/vagrant/sudo.ldif
+#     mode: 0664
+
+# - name: Add entry for sudo.ldif
+#   command: ldapadd -x -D "cn=admin,dc=labammsis" -w "gennaio.marzo" -H ldap:/// -f sudo.ldif
+#   register: output
+#   changed_when: output.rc == 0
+
+# - name: Insert line in ldap.conf for sudoers
+#   lineinfile:
+#     path: /etc/ldap/ldap.conf
+#     regexp: SUDOERS_BASE ou=SUDOers,dc=labammsis
+#     state: present
+#     line: SUDOERS_BASE ou=SUDOers,dc=labammsis
+
+# - name: Copy sudoers.ldif
+#   ansible.builtin.copy:
+#     src: sudoers.ldif
+#     dest: /home/vagrant/sudoers.ldif
+#     mode: 0664
+
+# - name: Add entry for sudoers.ldif
+#   command: ldapadd -x -D "cn=admin,dc=labammsis" -w "gennaio.marzo" -H ldap:/// -f sudoers.ldif
+#   register: output
+#   changed_when: output.rc == 0

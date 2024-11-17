@@ -1,0 +1,27 @@
+Vagrant.configure("2") do |config| 
+   config.vm.box = "debian/bullseye64"
+
+   #creiamo la prima interfaccia custom
+   #spostare la riga sotto dopo l'hostname se lo vogliamo solo in una delle due macchine
+   config.vm.network "private_network", virtualbox__intnet: "LAN1", auto_config: false
+
+  #specifichiamo il provider
+  config.vm.provider "virtualbox" do |vb|
+     # save disk space
+     vb.linked_clone = true
+  end
+
+   config.vm.define "client" do |machine|
+      machine.vm.hostname = "client"
+      machine.vm.provision "ansible" do |ansible|
+         ansible.playbook = "playbookClient.yml"
+      end #chiude il provision
+   end #chiude il define della macchina
+
+   config.vm.define "server" do |machine|
+      machine.vm.hostname = "server"
+      machine.vm.provision "ansible" do |ansible|
+         ansible.playbook = "playbookServer.yml"
+      end
+   end
+end #chiude il vagrantconfigure globale

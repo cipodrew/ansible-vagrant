@@ -1,0 +1,7 @@
+- name: Restart SLAPD
+  service:
+    name: slapd
+    state: restarted
+
+- name: reconfigure slapd
+  command: dpkg-reconfigure -f noninteractive slapd

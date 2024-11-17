@@ -1,0 +1,15 @@
+---
+- name: Copy new net interface file
+  ansible.builtin.copy:
+    src: eth1_dhcp
+    dest: /etc/network/interfaces.d/eth1
+    mode: 0644
+    validate: /usr/sbin/ifup --no-act -i %s eth1
+  notify: Restart Networking
+
+- name: Change allow-hotplug with auto
+  ansible.builtin.replace:
+    path: '/etc/network/interfaces'
+    regexp: '^allow\-hotplug'
+    replace: 'auto'
+    validate: /usr/sbin/ifup --no-act -i %s eth0

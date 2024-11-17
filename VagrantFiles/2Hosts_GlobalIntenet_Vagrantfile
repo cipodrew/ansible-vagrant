@@ -1,0 +1,37 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+# All Vagrant configuration is done below. The "2" in Vagrant.configure
+# configures the configuration version (we support older styles for
+# backwards compatibility). Please don't change it unless you know what
+# you're doing.
+Vagrant.configure("2") do |config|
+  config.vm.box = "debian/bullseye64"
+
+  # Create a private network, which allows host-only access to the machine
+  # creiamo la prima interfaccia custom eth1
+  # se la vogliamo solo su una macchina spostare questa riga sotto hostname
+ config.vm.network "private_network", virtualbox__intnet: "LAN1", auto_config: false
+
+  # Create a public network, which generally matched to bridged network.
+  # Bridged networks make the machine appear as another physical device on
+  # your network.
+  # config.vm.network "public_network"
+
+  #specifichiamo il provider
+   config.vm.provider "virtualbox" do |vb|
+     # save disk space
+     vb.linked_clone = true
+   end
+  
+  #Make the first machine
+   config.vm.define "client" do |machine|
+    machine.vm.hostname = "client"
+   end
+
+  #Make the second machine
+   config.vm.define "server" do |machine|
+    machine.vm.hostname = "server"
+   end
+
+end

@@ -1,0 +1,42 @@
+---
+- hosts: all
+  become: true
+  roles:
+    - common
+
+- hosts: ws1
+  become: true
+  roles:
+    - ws1
+    - SNMP_manager
+    
+- hosts: ws2
+  become: true
+  roles:
+    - ws2
+    - SNMP_manager
+
+- hosts: router
+  become: true
+  roles:
+    - router
+    - SNMP_agent
+    - LDAP_server
+    - SSH_server
+    - Log_server
+
+- hosts: client
+  become: true
+  roles:
+    - client
+    - LDAP_client
+    - SSH_client
+    - crond
+    - Log_transmitter
+    - SystemdUnit
+
+- hosts: client2
+  become: true
+  roles:
+    - client
+    - LDAP_client

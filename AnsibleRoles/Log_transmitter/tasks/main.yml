@@ -1,0 +1,16 @@
+- name: Send all logs to remote server via TCP and port 514
+  lineinfile:
+    path: /etc/rsyslog.conf
+    line: '*.* @@10.1.1.254:514'
+    state: present
+
+# - name: Send all logs to remote server via UDP and port 514
+#   lineinfile:
+#     path: /etc/rsyslog.conf
+#     line: '*.* @LOGSERVER_IP:514'
+#     state: present
+
+- name: Restart rsyslog service
+  service:
+    name: rsyslog
+    state: restarted

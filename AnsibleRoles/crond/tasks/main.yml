@@ -1,0 +1,9 @@
+- name: Add job to crontab
+  cron:
+    name: "cron format: m h DoM month DoW  command"
+    user: "vagrant"
+    minute: "15-45/5"
+    hour: "1"
+    job: "/bin/bash /path/to/script.sh > /dev/null 2>&1"
+#    job: '/bin/echo "Cron ran at: $(date)" >> /tmp/mycron.log'
+

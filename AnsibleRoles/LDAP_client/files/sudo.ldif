@@ -1,0 +1,4 @@
+dn: ou=SUDOers,dc=labammsis
+objectclass: organizationalunit
+ou: SUDOers
+description: sudo enabledusers

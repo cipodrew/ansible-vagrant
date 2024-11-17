@@ -1,0 +1,54 @@
+dn: cn=defaults,ou=SUDOers,dc=labammsis
+objectClass: top
+objectClass: sudoRole
+cn: defaults
+description: Default sudoOption's go here
+sudoOption: env_reset
+sudoOption: mail_badpass
+sudoOption: secure_path=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/snap/bin
+sudoOption: use_pty
+
+dn: cn=root,ou=SUDOers,dc=labammsis
+objectClass: top
+objectClass: sudoRole
+cn: root
+sudoUser: root
+sudoHost: ALL
+sudoRunAsUser: ALL
+sudoRunAsGroup: ALL
+sudoCommand: ALL
+sudoOrder: 1
+
+dn: cn=%admin,ou=SUDOers,dc=labammsis
+objectClass: top
+objectClass: sudoRole
+cn: %admin
+sudoUser: %admin
+sudoHost: ALL
+sudoRunAsUser: ALL
+sudoCommand: ALL
+sudoOrder: 2
+
+dn: cn=%sudo,ou=SUDOers,dc=labammsis
+objectClass: top
+objectClass: sudoRole
+cn: %sudo
+sudoUser: %sudo
+sudoHost: ALL
+sudoRunAsUser: ALL
+sudoRunAsGroup: ALL
+sudoCommand: ALL
+sudoOrder: 3
+
+dn: cn=%sudo_1,ou=SUDOers,dc=labammsis
+objectClass: top
+objectClass: sudoRole
+cn: %sudo_1
+sudoUser: %sudo
+sudoHost: ALL
+sudoOption: !authenticate
+sudoCommand: /usr/bin/prime-select
+sudoCommand: /usr/sbin/tlp
+sudoCommand: /lib/systemd/systemd-sysv-install
+sudoOrder: 4
+

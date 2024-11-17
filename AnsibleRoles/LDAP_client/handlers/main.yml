@@ -1,0 +1,27 @@
+- name: Move libnss-ldap:amd64.config file aside to prevent overwrite from dpkg-reconfigure
+  command:
+    cmd: mv /var/lib/dpkg/info/libnss-ldap:amd64.config /tmp/libnss-ldap:amd64.config
+
+- name: Move libpam-ldap:amd64.config file aside to prevent overwrite from dpkg-reconfigure
+  command:
+    cmd: mv /var/lib/dpkg/info/libpam-ldap:amd64.config /tmp/libpam-ldap:amd64.config
+
+- name: Reconfigure libnss-ldap
+  command: dpkg-reconfigure -f noninteractive libnss-ldap
+
+- name: Reconfigure libpam-ldap
+  command: dpkg-reconfigure -f noninteractive libpam-ldap
+
+- name: Restore libnss-ldap:amd64.config file to original location
+  command:
+    cmd: mv /tmp/libnss-ldap:amd64.config /var/lib/dpkg/info/libnss-ldap:amd64.config
+
+- name: Restore libpam-ldap:amd64.config file to original location
+  command:
+    cmd: mv /tmp/libpam-ldap:amd64.config /var/lib/dpkg/info/libpam-ldap:amd64.config
+
+- name: Restart NSCD
+  service:
+    name: nscd
+    state: restarted
+

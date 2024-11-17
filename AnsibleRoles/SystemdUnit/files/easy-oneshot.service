@@ -1,0 +1,17 @@
+[Unit]
+Description=Run script.sh
+Requires=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/home/vagrant/script.sh
+#ExecStop=
+RemainAfterExit=true
+TimeoutStartSec=5min
+#User=vagrant
+#Group=vagrant
+
+[Install]
+WantedBy=multi-user.target
+#Alias=one-shot.service

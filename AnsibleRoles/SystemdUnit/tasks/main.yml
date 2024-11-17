@@ -1,0 +1,25 @@
+- name: Add systemd unit
+  ansible.builtin.copy:
+    src: easy-oneshot.service
+    dest: "/etc/systemd/system/easy-oneshot.service"
+    mode: 0644
+
+# - name: Add systemd unit 2
+#   ansible.builtin.copy:
+#     src: simpleMonitoring.service
+#     dest: "/etc/systemd/system/monitor.service"
+#     mode: 0644
+
+- name: Reload systemd
+  ansible.builtin.systemd:
+    daemon_reload: true
+
+- name: Enable the systemd unit
+  systemd:
+    name: easy-oneshot.service
+    enabled: true
+    
+# - name: Enable the systemd unit 2
+#   systemd:
+#     name: monitor.service
+#     enabled: true

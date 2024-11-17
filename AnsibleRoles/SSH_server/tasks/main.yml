@@ -1,0 +1,31 @@
+- name: Create the ~root/.ssh directory as root with 0700 permissions
+  file:
+    path: ~root/.ssh
+    state: directory
+    owner: root
+    group: root
+    mode: '0700'
+
+- name: Create the authorized_keys file as root with permissions 0600
+  file:
+    path: ~root/.ssh/authorized_keys
+    state: touch
+    owner: root
+    group: root
+    mode: '0600'
+
+###### only needed if you need to login as root
+- name: Ensure root access is allowed
+  ansible.builtin.lineinfile:
+    path: /etc/ssh/sshd_config
+    state: present
+    line: "PermitRootLogin yes"
+  notify: Restart sshd
+
+############## RUN MANUALLY IF SSH CLIENT NEEDS TO BOOT AFTER SSH SERVER IN VAGRANT UP #######################
+
+# - name: Execute the command cat /vagrant/id_rsa.pub >> ~root/.ssh/authorized_keys NEEDS REMOTE HOST PUBKEY TO BE CREATED FIRST
+#   shell:
+#     cmd: cat /vagrant/id_rsa.pub >> ~root/.ssh/authorized_keys
+#   register: output
+#   changed_when: output.rc == 0

@@ -1,0 +1,55 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure("2") do |config|
+    config.vm.box = "debian/bullseye64"
+  
+    config.vm.provider "virtualbox" do |vb|
+      vb.linked_clone = true
+    end
+ 
+    config.vm.define "router" do |machine|
+        machine.vm.hostname = "router"
+        machine.vm.network "private_network", virtualbox__intnet: "LAN1", auto_config: false
+        machine.vm.network "private_network", virtualbox__intnet: "LAN2", auto_config: false
+    
+         machine.vm.provision "ansible" do |ansible|
+           ansible.playbook = "play.yml"
+        end
+      end
+  
+    config.vm.define "ws1" do |machine|
+      machine.vm.hostname = "ws1"
+      machine.vm.network "private_network", virtualbox__intnet: "LAN2", auto_config: false
+  
+       machine.vm.provision "ansible" do |ansible|
+         ansible.playbook = "play.yml"
+      end
+    end
+
+    config.vm.define "ws2" do |machine|
+      machine.vm.hostname = "ws2"
+      machine.vm.network "private_network", virtualbox__intnet: "LAN2", auto_config: false
+  
+       machine.vm.provision "ansible" do |ansible|
+         ansible.playbook = "play.yml"
+      end
+    end
+    config.vm.define "client" do |machine|
+      machine.vm.hostname = "client"
+      machine.vm.network "private_network", virtualbox__intnet: "LAN1", auto_config: false
+  
+      machine.vm.provision "ansible" do |ansible|
+         ansible.playbook = "play.yml"
+       end
+    end
+    
+    # config.vm.define "client2" do |machine|
+    #   machine.vm.hostname = "client2"
+    #   machine.vm.network "private_network", virtualbox__intnet: "LAN1", auto_config: false
+  
+    #   machine.vm.provision "ansible" do |ansible|
+    #      ansible.playbook = "play.yml"
+    #    end
+    # end
+  end

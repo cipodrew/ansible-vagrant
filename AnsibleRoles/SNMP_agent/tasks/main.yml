@@ -1,0 +1,41 @@
+- name: Install SNMPD and tcpdump
+  ansible.builtin.apt:
+    update_cache: true
+    pkg:
+      - snmpd
+      - tcpdump
+  notify: Restart SNMPD
+
+- name: Copy snmpd.conf
+  ansible.builtin.copy:
+    src: snmpd.conf
+    dest: /etc/snmp/snmpd.conf
+    mode: 0664
+
+# - name: Add privileged actions for snmp agent scripts
+#   ansible.builtin.copy:
+#     src: Debian-snmp
+#     dest: '/etc/sudoers.d/'
+#     owner: 'root'
+#     group: 'root'
+#     mode: '0440'
+#     validate: '/usr/sbin/visudo -csf %s'
+
+- name: Enable snmpd at boot
+  ansible.builtin.systemd:
+    name: snmpd.service
+    state: started
+    enabled: true
+  notify: Restart SNMPD
+
+- name: Aggiungi nuova regola restrittiva con visudo
+  blockinfile:
+    path: /etc/sudoers.d/debian-snmp
+    block: "Debian-snmp ALL=(ALL) NOPASSWD: /usr/bin/ss -lntp"
+    create: true
+    state: present
+    backup: true
+    owner: root
+    group: root
+    mode: "0440"
+  notify: Restart SNMPD

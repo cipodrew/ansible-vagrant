@@ -1,0 +1,4 @@
+dn: ou=Groups,dc=labammsis
+objectClass: organizationalunit
+ou: Group
+description: system group
